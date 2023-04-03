@@ -1,7 +1,7 @@
 import Foundation
 
 public struct OpenAICompletionResponse: Codable {
-    let id: String
+    let id: String?
     let object: String
     let created: Int
     let model: String
