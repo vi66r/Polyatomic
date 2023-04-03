@@ -14,25 +14,25 @@ extension Endpoint {
     static func completions(api: API, prompt: String, maxTokens: Int, temperature: Float, topP: Float) -> Endpoint {
         let path = "/v1/completions?"
         
-//        let attachment = [
-//            "model" : "gpt-3.5-turbo",
-//            "prompt" : prompt,
-//            "max_tokens" : "\(maxTokens)",
-//            "temperature" : "\(temperature)",
-//            "top_p:" : "\(topP)"
-//        ]
-//
-//        let data = try! JSONEncoder().encode(attachment)
-        
-        let queryItems = [
-            URLQueryItem(name: "model", value: "gpt-3.5-turbo"),
-            URLQueryItem(name: "prompt", value: prompt),
-            URLQueryItem(name: "max_tokens", value: "\(maxTokens)"),
-            URLQueryItem(name: "temperature", value: "\(temperature)"),
-            URLQueryItem(name: "top_p", value: "\(topP)")
+        let attachment = [
+            "model" : "gpt-3.5-turbo",
+            "prompt" : prompt,
+            "max_tokens" : "\(maxTokens)",
+            "temperature" : "\(temperature)",
+            "top_p:" : "\(topP)"
         ]
+
+        let data = try! JSONEncoder().encode(attachment)
+        
+//        let queryItems = [
+//            URLQueryItem(name: "model", value: "gpt-3.5-turbo"),
+//            URLQueryItem(name: "prompt", value: prompt),
+//            URLQueryItem(name: "max_tokens", value: "\(maxTokens)"),
+//            URLQueryItem(name: "temperature", value: "\(temperature)"),
+//            URLQueryItem(name: "top_p", value: "\(topP)")
+//        ]
         var endpoint = Endpoint(api, path, method: .post)
-        return endpoint.addingQueryItems(queryItems)
+        return endpoint.attaching(data)
     }
 }
 
