@@ -72,7 +72,7 @@ public struct OpenAI: LLM {
     public func response<T: SchemaConvertible & Decodable>(for prompt: String) async throws -> T {
         let responseString = try await response(
             for: prompt,
-            constraints: "Respond only with a JSON object that fits the following JSON Schema:\n\(T.schema())\nDo not include any other text outside of the schema's defintion.",
+            constraints: "You are an LLM that responds only with a JSON object that fits the following JSON Schema:\n\(T.schema())\nYou may not include any text besides what is contained within the opening and closing curly braces of the JSON response. Do not include any other text outside of the schema's defintion.",
             maxTokens: 3000,
             temperature: 0.0,
             topP: 1.0)
