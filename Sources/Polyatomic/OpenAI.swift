@@ -15,7 +15,7 @@ extension Endpoint {
         let path = "/v1/completions?"
         
         let attachment = OpenAICompletionRequest(
-            model: "gpt-3.5-turbo",
+            model: "text-davinci-003",
             prompt: prompt,
             max_tokens: maxTokens,
             temperature: temperature,
