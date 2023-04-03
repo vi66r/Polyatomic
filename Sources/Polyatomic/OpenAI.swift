@@ -25,6 +25,7 @@ extension Endpoint {
 }
 
 public struct OpenAI: LLM {
+    
     let apiKey: String
     
     init(apiKey: String) {
@@ -32,7 +33,20 @@ public struct OpenAI: LLM {
     }
     
     public func response(for prompt: String) async throws -> String {
-        return try await response(for: prompt, maxTokens: 3000, temperature: 0.0, topP: 1.0)
+        return try await response(for: prompt, maxTokens: 3000, temperature: 0.5, topP: 1.0)
+    }
+    
+    public func response<T: SchemaConvertible & Decodable>(for prompt: String) async throws -> T {
+        let responseString = try await response(
+            for: "\(prompt) \n\n\n\n you must return your response to fit the following JSON Schema: \"\(T.schema())\" \n\n\n You MUST NOT respond with anything else. Responding in any format besides what's specified in the JSON Schema will result in catastrophic failure.",
+            maxTokens: 3000,
+            temperature: 0.0,
+            topP: 1.0)
+        guard let data = responseString.data(using: .utf8, allowLossyConversion: false) else {
+            throw NetworkError.badDecode
+        }
+        let result = try JSONDecoder().decode(T.self, from: data)
+        return result
     }
     
     func response(for prompt: String,
