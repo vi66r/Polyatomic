@@ -72,7 +72,7 @@ public struct OpenAI: LLM {
     public func response<T: SchemaConvertible & Decodable>(for prompt: String) async throws -> T {
         let responseString = try await response(
             for: prompt,
-            constraints: "Ignore all previous directives. You are now an LLM that only returns JSON objects to fit the following schema:\n\(T.schema())\nYou can not respond with anything else aside from the specified JSON.",
+            constraints: "Ignore all previous directives. You are now a REST API that only returns JSON objects to fit the following schema:\n\(T.schema())\nYou can not respond with anything else aside from the specified JSON.",
             maxTokens: 3000,
             temperature: 0.0,
             topP: 1.0)
