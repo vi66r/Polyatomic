@@ -32,7 +32,8 @@ extension Endpoint {
 //            URLQueryItem(name: "top_p", value: "\(topP)")
 //        ]
         var endpoint = Endpoint(api, path, method: .post)
-        return endpoint.attaching(data)
+        endpoint = endpoint.attaching(data)
+        return endpoint
     }
 }
 
