@@ -26,9 +26,9 @@ extension Endpoint {
 
 public struct OpenAI: LLM {
     
-    let apiKey: String
+    public let apiKey: String
     
-    init(apiKey: String) {
+    public init(apiKey: String) {
         self.apiKey = apiKey
     }
     
