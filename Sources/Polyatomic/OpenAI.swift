@@ -29,6 +29,32 @@ extension Endpoint {
         endpoint = endpoint.setting(contentType: .json)
         return endpoint
     }
+    
+    static func chat(api: API,
+                     systemMessage: String,
+                     userMessage: String,
+                     maxTokens: Int,
+                     temperature: Double,
+                     topP: Double
+    ) -> Endpoint {
+        let path = "/v1/chat/completions?"
+        
+        let attachment = OpenAIChatCompletionRequest(model: "gpt-3.5-turbo",
+                                                     messages: [
+                                                        .init(role: .system, content: systemMessage),
+                                                        .init(role: .user, content: userMessage)
+                                                     ],
+                                                     max_tokens: maxTokens,
+                                                     temperature: temperature,
+                                                     top_p: topP)
+
+        let data = try! JSONEncoder().encode(attachment)
+        
+        var endpoint = Endpoint(api, path, method: .post)
+        endpoint = endpoint.attaching(data)
+        endpoint = endpoint.setting(contentType: .json)
+        return endpoint
+    }
 }
 
 public struct OpenAI: LLM {
@@ -40,12 +66,13 @@ public struct OpenAI: LLM {
     }
     
     public func response(for prompt: String) async throws -> String {
-        return try await response(for: prompt, maxTokens: 3000, temperature: 0.5, topP: 1.0)
+        return try await response(for: prompt, constraints: "", maxTokens: 3000, temperature: 0.5, topP: 1.0)
     }
     
     public func response<T: SchemaConvertible & Decodable>(for prompt: String) async throws -> T {
         let responseString = try await response(
-            for: "\(prompt) \n\n\n\n you must return your response to fit the following JSON Schema: \(T.schema()) \n\n\n You MUST NOT respond with anything else. Responding in any format besides what's specified in the JSON Schema will result in catastrophic failure.",
+            for: prompt,
+            constraints: "You must return your response to fit the following JSON Schema:\n\(T.schema())\nYou MUST NOT respond with anything else. Responding in any format besides what's specified in the JSON Schema will result in catastrophic failure.",
             maxTokens: 3000,
             temperature: 0.0,
             topP: 1.0)
@@ -56,18 +83,20 @@ public struct OpenAI: LLM {
         return result
     }
     
-    func response(for prompt: String,
+    func response(for userMessage: String,
+                  constraints: String,
                   maxTokens: Int = 3000,
                   temperature: Double = 0.5,
                   topP: Double = 1.0
     ) async throws -> String {
         let api: API = .openAI(apiKey: apiKey)
         
-        let endpoint = Endpoint.completions(api: api,
-                                            prompt: prompt,
-                                            maxTokens: maxTokens,
-                                            temperature: temperature,
-                                            topP: topP)
+        let endpoint = Endpoint.chat(api: api,
+                                     systemMessage: constraints,
+                                     userMessage: userMessage,
+                                     maxTokens: maxTokens,
+                                     temperature: temperature,
+                                     topP: topP)
         
         let response: OpenAICompletionResponse = try await Networker.execute(endpoint)
         guard let text = response.choices.first?.text else { throw NetworkError.noDataOrBadResponse }
