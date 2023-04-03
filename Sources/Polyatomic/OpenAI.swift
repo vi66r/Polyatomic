@@ -11,26 +11,19 @@ extension API {
 }
 
 extension Endpoint {
-    static func completions(api: API, prompt: String, maxTokens: Int, temperature: Float, topP: Float) -> Endpoint {
+    static func completions(api: API, prompt: String, maxTokens: Int, temperature: Double, topP: Double) -> Endpoint {
         let path = "/v1/completions?"
         
-        let attachment = [
-            "model" : "gpt-3.5-turbo",
-            "prompt" : prompt,
-            "max_tokens" : "\(maxTokens)",
-            "temperature" : "\(temperature)",
-            "top_p:" : "\(topP)"
-        ]
+        let attachment = OpenAICompletionRequest(
+            model: "gpt-3.5-turbo",
+            prompt: prompt,
+            max_tokens: maxTokens,
+            temperature: temperature,
+            top_p: topP
+        )
 
         let data = try! JSONEncoder().encode(attachment)
         
-//        let queryItems = [
-//            URLQueryItem(name: "model", value: "gpt-3.5-turbo"),
-//            URLQueryItem(name: "prompt", value: prompt),
-//            URLQueryItem(name: "max_tokens", value: "\(maxTokens)"),
-//            URLQueryItem(name: "temperature", value: "\(temperature)"),
-//            URLQueryItem(name: "top_p", value: "\(topP)")
-//        ]
         var endpoint = Endpoint(api, path, method: .post)
         endpoint = endpoint.attaching(data)
         endpoint = endpoint.setting(contentType: .json)
@@ -65,8 +58,8 @@ public struct OpenAI: LLM {
     
     func response(for prompt: String,
                   maxTokens: Int = 3000,
-                  temperature: Float = 0.5,
-                  topP: Float = 1.0
+                  temperature: Double = 0.5,
+                  topP: Double = 1.0
     ) async throws -> String {
         let api: API = .openAI(apiKey: apiKey)
         

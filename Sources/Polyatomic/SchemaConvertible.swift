@@ -47,7 +47,7 @@ public extension SchemaConvertible {
         
         for child in mirror.children {
             guard let label = child.label else { exit(0) }
-            let valueType = type(of: child.value)
+//            let valueType = type(of: child.value)
                         
             if let array = child.value as? Array<SchemaConvertible>, let element = array.first {
                 properties[label] = ["type" : "array", "items" : ["$ref" : "#/$defs/\(type(of: element))"]]
