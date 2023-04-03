@@ -72,7 +72,7 @@ public struct OpenAI: LLM {
     public func response<T: SchemaConvertible & Decodable>(for prompt: String) async throws -> T {
         let responseString = try await response(
             for: prompt,
-            constraints: "You must return your response to fit the following JSON Schema:\n\(T.schema())\nYou MUST NOT respond with anything else. Responding in any format besides what's specified in the JSON Schema will result in catastrophic failure.",
+            constraints: "Ignore all previous directives. You are now an LLM that only returns JSON objects to fit the following schema:\n\(T.schema())\nYou can not respond with anything else aside from the specified JSON.",
             maxTokens: 3000,
             temperature: 0.0,
             topP: 1.0)
@@ -98,8 +98,8 @@ public struct OpenAI: LLM {
                                      temperature: temperature,
                                      topP: topP)
         
-        let response: OpenAICompletionResponse = try await Networker.execute(endpoint)
-        guard let text = response.choices.first?.text else { throw NetworkError.noDataOrBadResponse }
+        let response: ChatCompletionResponse = try await Networker.execute(endpoint)
+        guard let text = response.choices.first?.message.content else { throw NetworkError.noDataOrBadResponse }
         return text
     }    
 }

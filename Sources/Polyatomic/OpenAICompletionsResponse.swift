@@ -29,3 +29,9 @@ public struct Logprobs: Codable {
     let text_offset: [Int]
 }
 
+struct ChatCompletionResponse: Codable {
+    struct Choice: Codable {
+        var message: Message
+    }
+    var choices: [Choice]
+}
