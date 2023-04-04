@@ -40,7 +40,7 @@ extension Endpoint {
         
         let attachment = OpenAIChatCompletionRequest(model: "gpt-3.5-turbo",
                                                      messages: [
-                                                        .init(role: .system, content: systemMessage),
+                                                        .init(role: .user, content: systemMessage),
                                                         .init(role: .user, content: userMessage)
                                                      ],
                                                      max_tokens: maxTokens,
@@ -90,8 +90,8 @@ public struct OpenAI: LLM {
         let api: API = .openAI(apiKey: apiKey)
         
         let endpoint = Endpoint.chat(api: api,
-                                     systemMessage: "",
-                                     userMessage: constraints + " " + userMessage,
+                                     systemMessage: constraints,
+                                     userMessage: userMessage,
                                      maxTokens: maxTokens,
                                      temperature: temperature,
                                      topP: topP)
