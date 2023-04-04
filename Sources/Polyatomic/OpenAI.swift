@@ -49,8 +49,7 @@ extension Endpoint {
 
         let data = try! JSONEncoder().encode(attachment)
         
-        var endpoint = Endpoint(api, path, method: .post)
-        endpoint = endpoint.attaching(data)
+        var endpoint = Endpoint(api, path, method: .post, timeout: 300, attachment: data)
         endpoint = endpoint.setting(contentType: .json)
         return endpoint
     }
