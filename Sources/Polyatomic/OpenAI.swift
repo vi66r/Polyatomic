@@ -72,7 +72,7 @@ public struct OpenAI: LLM {
         let responseString = try await response(
             for: prompt,
             constraints: "You are an LLM that responds only with a JSON object that fits the following JSON Schema:\n\(T.schema())\nYou may not include any text besides what is contained within the opening and closing curly braces of the JSON response. You can not deviate from the schema's definition in any way otherwise the task you are given will fail. Do not include any other text outside of the schema's defintion.",
-            maxTokens: 100,
+            maxTokens: 2000,
             temperature: 0.0,
             topP: 1.0)
         guard let data = responseString.data(using: .utf8, allowLossyConversion: false) else {
