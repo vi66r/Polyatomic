@@ -24,8 +24,7 @@ extension Endpoint {
 
         let data = try! JSONEncoder().encode(attachment)
         
-        var endpoint = Endpoint(api, path, method: .post)
-        endpoint = endpoint.attaching(data)
+        var endpoint = Endpoint(api, path, method: .post, timeout: 300, attachment: data)
         endpoint = endpoint.setting(contentType: .json)
         return endpoint
     }
@@ -66,14 +65,14 @@ public struct OpenAI: LLM {
     }
     
     public func response(for prompt: String) async throws -> String {
-        return try await response(for: prompt, constraints: "", maxTokens: 3000, temperature: 0.5, topP: 1.0)
+        return try await response(for: prompt, constraints: "", maxTokens: 100, temperature: 0.5, topP: 1.0)
     }
     
     public func response<T: SchemaConvertible & Decodable>(for prompt: String) async throws -> T {
         let responseString = try await response(
             for: prompt,
             constraints: "You are an LLM that responds only with a JSON object that fits the following JSON Schema:\n\(T.schema())\nYou may not include any text besides what is contained within the opening and closing curly braces of the JSON response. You can not deviate from the schema's definition in any way otherwise the task you are given will fail. Do not include any other text outside of the schema's defintion.",
-            maxTokens: 3000,
+            maxTokens: 100,
             temperature: 0.0,
             topP: 1.0)
         guard let data = responseString.data(using: .utf8, allowLossyConversion: false) else {
@@ -92,8 +91,8 @@ public struct OpenAI: LLM {
         let api: API = .openAI(apiKey: apiKey)
         
         let endpoint = Endpoint.chat(api: api,
-                                     systemMessage: constraints,
-                                     userMessage: userMessage,
+                                     systemMessage: "",
+                                     userMessage: constraints + " " + userMessage,
                                      maxTokens: maxTokens,
                                      temperature: temperature,
                                      topP: topP)
