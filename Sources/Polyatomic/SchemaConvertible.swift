@@ -107,5 +107,21 @@ public extension SchemaConvertible {
         
         return ""
     }
+    
+    func stringRepresentation() throws -> String {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+        
+        do {
+            let data = try JSONSerialization.data(withJSONObject: self, options: .prettyPrinted)
+            if let stringRepresentation = String(data: data, encoding: .utf8) {
+                return stringRepresentation
+            }
+        } catch let error as SchemaConvertibleError {
+            throw error
+        }
+        
+        return ""
+    }
 }
 
