@@ -11,7 +11,7 @@ public struct PolyatomicResult<T: Codable & SchemaConvertible> {
     
     public func then(_ prompt: String, using model: LLM? = nil, with parameters: [String: Any]? = nil) async throws -> PolyatomicResult<String> {
         let stringRepresentation = try result.stringRepresentation()
-        let prompt = "given this data: \"\(stringRepresentation)\"\nperform the following: \"\(prompt)\"\nThere is no need to mention the data used. Respond in a friendly and charming manner" // mood/response type could be a variable or "parameter"
+        let prompt = "given this data: \"\(stringRepresentation)\"\nperform the following: \"\(prompt)\"\nThere is no need to mention the data used in any form. For example, don't use phrases like \"based on the data you provided\". Respond in a friendly and charming manner. Assume that your response is part of an existing conversation and is no need to use a greeting." // mood/response type could be a variable or "parameter"
         return try await (model ?? llm).response(for: prompt, parameters: parameters)
     }
     
