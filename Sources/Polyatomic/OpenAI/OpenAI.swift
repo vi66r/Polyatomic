@@ -119,7 +119,7 @@ public struct OpenAI: LLM {
         let api: API = .openAI(apiKey: apiKey)
         
         let endpoint = Endpoint.chat(api: api,
-                                     userMessage: constraints + "\n" + userMessage,
+                                     userMessage: constraints + "\nGiven the aforementioned constraints, perform the following:\n" + userMessage,
                                      maxTokens: maxTokens,
                                      temperature: temperature,
                                      topP: topP)
