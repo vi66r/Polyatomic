@@ -6,6 +6,7 @@ public protocol SchemaConvertible {
 
 public enum SchemaConvertibleError: Error {
     case nonConformingType(String)
+    case notEncodable
 }
 
 public extension SchemaConvertible {
@@ -109,11 +110,12 @@ public extension SchemaConvertible {
     }
     
     func stringRepresentation() throws -> String {
+        guard let value = self as? Codable else { throw SchemaConvertibleError.notEncodable }
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
         
         do {
-            let data = try JSONSerialization.data(withJSONObject: self, options: .prettyPrinted)
+            let data = try encoder.encode(value)
             if let stringRepresentation = String(data: data, encoding: .utf8) {
                 return stringRepresentation
             }
