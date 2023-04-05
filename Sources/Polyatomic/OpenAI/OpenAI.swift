@@ -65,23 +65,45 @@ extension Endpoint {
 
 public struct OpenAI: LLM {
     
+    
+    public func respond<T: SchemaConvertible & Decodable>(withResultContaining type: T.Type,
+                                                          for prompt: String, parameters: [String : Any]?
+    ) async throws -> PolyatomicResult<T> {
+        let maxTokens: Int = parameters?["maxTokens"] as? Int ?? 4096
+        let temperature: Double = parameters?["temperature"] as? Double ?? 0.0
+        let topP: Double = parameters?["top_p"] as? Double ?? 1.0
+        let result = try await respond(with: type, for: prompt, maxTokens: maxTokens, temperature: temperature, topP: topP)
+        return PolyatomicResult(llm: self, result: result)
+    }
+    
+    
     public let apiKey: String
     
     public init(apiKey: String) {
         self.apiKey = apiKey
     }
     
-    public func response(for prompt: String) async throws -> String {
-        return try await response(for: prompt, constraints: "", maxTokens: 100, temperature: 0.5, topP: 1.0)
+    public func response(for prompt: String, parameters: [String: Any]?) async throws -> PolyatomicResult<String> {
+        let maxTokens: Int = parameters?["maxTokens"] as? Int ?? 4096
+        let temperature: Double = parameters?["temperature"] as? Double ?? 0.5
+        let topP: Double = parameters?["top_p"] as? Double ?? 1.0
+        let response = try await response(for: prompt, constraints: "", maxTokens: maxTokens, temperature: temperature, topP: topP)
+        return PolyatomicResult(llm: self, result: response)
     }
     
-    public func response<T: SchemaConvertible & Decodable>(for prompt: String) async throws -> T {
+    public func respond<T: SchemaConvertible & Decodable>(
+        with type: T.Type,
+        for prompt: String,
+        maxTokens: Int = 4096,
+        temperature: Double = 0.0,
+        topP: Double = 1.0
+    ) async throws -> T {
         let responseString = try await response(
             for: prompt,
             constraints: "You are an LLM that responds only with a JSON object that fits the following JSON Schema:\n\(T.schema())\nYou may not include any text besides what is contained within the opening and closing curly braces of the JSON response. You can not deviate from the schema's definition in any way otherwise the task you are given will fail. Do not include any other text outside of the schema's defintion.",
-            maxTokens: 2000,
-            temperature: 0.0,
-            topP: 1.0)
+            maxTokens: maxTokens,
+            temperature: temperature,
+            topP: topP)
         guard let data = responseString.data(using: .utf8, allowLossyConversion: false) else {
             throw NetworkError.badDecode
         }
