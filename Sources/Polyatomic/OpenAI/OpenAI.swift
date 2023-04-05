@@ -72,8 +72,7 @@ public struct OpenAI: LLM {
         let maxTokens: Int = parameters?["maxTokens"] as? Int ?? 4096
         let temperature: Double = parameters?["temperature"] as? Double ?? 0.0
         let topP: Double = parameters?["top_p"] as? Double ?? 1.0
-        let result = try await respond(with: type, for: prompt, maxTokens: maxTokens, temperature: temperature, topP: topP)
-        return PolyatomicResult(llm: self, result: result)
+        return try await respond(with: type, for: prompt, maxTokens: maxTokens, temperature: temperature, topP: topP)
     }
     
     
@@ -97,7 +96,7 @@ public struct OpenAI: LLM {
         maxTokens: Int = 4096,
         temperature: Double = 0.0,
         topP: Double = 1.0
-    ) async throws -> T {
+    ) async throws -> PolyatomicResult<T> {
         let responseString = try await response(
             for: prompt,
             constraints: "You are an LLM that responds only with a JSON object that fits the following JSON Schema:\n\(T.schema())\nYou may not include any text besides what is contained within the opening and closing curly braces of the JSON response. You can not deviate from the schema's definition in any way otherwise the task you are given will fail. Do not include any other text outside of the schema's defintion.",
@@ -108,7 +107,7 @@ public struct OpenAI: LLM {
             throw NetworkError.badDecode
         }
         let result = try JSONDecoder().decode(T.self, from: data)
-        return result
+        return PolyatomicResult(llm: self, result: result)
     }
     
     func response(for userMessage: String,
