@@ -30,7 +30,7 @@ extension Endpoint {
     }
     
     static func chat(api: API,
-                     systemMessage: String,
+                     systemMessage: String? = nil,
                      userMessage: String,
                      maxTokens: Int,
                      temperature: Double,
@@ -38,11 +38,19 @@ extension Endpoint {
     ) -> Endpoint {
         let path = "/v1/chat/completions?"
         
+        let messages: [Message]
+        
+        if let systemMessage = systemMessage {
+            messages = [
+                .init(role: .user, content: systemMessage),
+                .init(role: .user, content: userMessage)
+            ]
+        } else {
+            messages = [.init(role: .user, content: userMessage)]
+        }
+        
         let attachment = OpenAIChatCompletionRequest(model: "gpt-3.5-turbo",
-                                                     messages: [
-                                                        .init(role: .user, content: systemMessage),
-                                                        .init(role: .user, content: userMessage)
-                                                     ],
+                                                     messages: messages,
                                                      max_tokens: maxTokens,
                                                      temperature: temperature,
                                                      top_p: topP)
@@ -90,8 +98,7 @@ public struct OpenAI: LLM {
         let api: API = .openAI(apiKey: apiKey)
         
         let endpoint = Endpoint.chat(api: api,
-                                     systemMessage: constraints,
-                                     userMessage: userMessage,
+                                     userMessage: constraints + "\n" + userMessage,
                                      maxTokens: maxTokens,
                                      temperature: temperature,
                                      topP: topP)
