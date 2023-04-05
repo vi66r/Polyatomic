@@ -91,7 +91,7 @@ public struct OpenAI: LLM {
     }
     
     public func respond<T: SchemaConvertible & Decodable>(
-        with type: T.Type,
+        withResultContaining type: T.Type,
         for prompt: String,
         maxTokens: Int = 4096,
         temperature: Double = 0.0,
