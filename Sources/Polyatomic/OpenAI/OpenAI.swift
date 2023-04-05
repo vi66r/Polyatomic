@@ -72,7 +72,7 @@ public struct OpenAI: LLM {
         let maxTokens: Int = parameters?["maxTokens"] as? Int ?? 4096
         let temperature: Double = parameters?["temperature"] as? Double ?? 0.0
         let topP: Double = parameters?["top_p"] as? Double ?? 1.0
-        return try await respond(with: type, for: prompt, maxTokens: maxTokens, temperature: temperature, topP: topP)
+        return try await respond(withResultContaining: type, for: prompt, maxTokens: maxTokens, temperature: temperature, topP: topP)
     }
     
     
