@@ -69,7 +69,7 @@ public struct OpenAI: LLM {
     public func respond<T: SchemaConvertible & Decodable>(withResultContaining type: T.Type,
                                                           for prompt: String, parameters: [String : Any]?
     ) async throws -> PolyatomicResult<T> {
-        let maxTokens: Int = parameters?["maxTokens"] as? Int ?? 4096
+        let maxTokens: Int = parameters?["maxTokens"] as? Int ?? 2048
         let temperature: Double = parameters?["temperature"] as? Double ?? 0.0
         let topP: Double = parameters?["top_p"] as? Double ?? 1.0
         return try await respond(withResultContaining: type, for: prompt, maxTokens: maxTokens, temperature: temperature, topP: topP)
@@ -83,7 +83,7 @@ public struct OpenAI: LLM {
     }
     
     public func response(for prompt: String, parameters: [String: Any]?) async throws -> PolyatomicResult<String> {
-        let maxTokens: Int = parameters?["maxTokens"] as? Int ?? 4096
+        let maxTokens: Int = parameters?["maxTokens"] as? Int ?? 2048
         let temperature: Double = parameters?["temperature"] as? Double ?? 0.5
         let topP: Double = parameters?["top_p"] as? Double ?? 1.0
         let response = try await response(for: prompt, constraints: "", maxTokens: maxTokens, temperature: temperature, topP: topP)
@@ -93,7 +93,7 @@ public struct OpenAI: LLM {
     public func respond<T: SchemaConvertible & Decodable>(
         withResultContaining type: T.Type,
         for prompt: String,
-        maxTokens: Int = 4096,
+        maxTokens: Int = 2048,
         temperature: Double = 0.0,
         topP: Double = 1.0
     ) async throws -> PolyatomicResult<T> {
@@ -112,7 +112,7 @@ public struct OpenAI: LLM {
     
     func response(for userMessage: String,
                   constraints: String,
-                  maxTokens: Int = 3000,
+                  maxTokens: Int = 2048,
                   temperature: Double = 0.5,
                   topP: Double = 1.0
     ) async throws -> String {
