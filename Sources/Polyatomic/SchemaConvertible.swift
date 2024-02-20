@@ -17,7 +17,10 @@ public extension SchemaConvertible {
 
         if valueType is Date.Type || valueType is Optional<Date>.Type {
             _propertyDescriptor["type"] = "string"
-            _propertyDescriptor["format"] = "date-time" // Use "date-time" for full date plus time, or "date" for just the date
+            _propertyDescriptor["format"] = "date-time"
+        } else if valueType is UUID.Type || valueType is Optional<UUID>.Type {
+            _propertyDescriptor["type"] = "string"
+            // Optional: _propertyDescriptor["format"] = "uuid"
         } else if valueType is String.Type || valueType is Optional<String>.Type {
             _propertyDescriptor["type"] = "string"
         } else if valueType is Int.Type || valueType is Optional<Int>.Type {
@@ -36,6 +39,7 @@ public extension SchemaConvertible {
             let unwrapped = value.unsafelyUnwrapped
             _propertyDescriptor = try type(of: unwrapped)._schema()
         } else {
+            print("Polyatomic Schema Conversion Error: Non-conforming type encountered in propertyDescriptor for value: \(value)")
             throw SchemaConvertibleError.nonConformingType("Could not encode this type...")
         }
 
@@ -48,10 +52,10 @@ public extension SchemaConvertible {
         var properties: [String: Any] = [:]
         var defs: [String: Any] = [:]
         var required: [String] = []
-        
+
         for child in mirror.children {
-            guard let label = child.label else { exit(0) }
-                        
+            guard let label = child.label else { fatalError("Polyatomic Schema Conversion Error: Found child without label during _schema generation") }
+            
             if let array = child.value as? Array<SchemaConvertible>, let element = array.first {
                 properties[label] = ["type" : "array", "items" : ["$ref" : "#/$defs/\(type(of: element))"]]
                 defs["\(type(of: element))"] = try type(of: element)._schema()
@@ -76,7 +80,7 @@ public extension SchemaConvertible {
             
             properties[label] = try propertyDescriptor(for: child.value)
         }
-        
+
         var schema: [String: Any] = [
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "description" : "a representation of \(type(of: instance))",
@@ -91,7 +95,7 @@ public extension SchemaConvertible {
         if !defs.isEmpty {
             schema["$defs"] = defs
         }
-        
+
         return schema
     }
     
@@ -106,14 +110,18 @@ public extension SchemaConvertible {
                 return schemaString
             }
         } catch let error as SchemaConvertibleError {
+            print("Error encountered during schema generation: \(error)")
             throw error
         }
-        
+
         return ""
     }
     
     func stringRepresentation() throws -> String {
-        guard let value = self as? Codable else { throw SchemaConvertibleError.notEncodable }
+        guard let value = self as? Codable else {
+            print("Polyatomic Schema Conversion Error: Attempted to generate string representation for a non-Codable type")
+            throw SchemaConvertibleError.notEncodable
+        }
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
         
@@ -123,10 +131,10 @@ public extension SchemaConvertible {
                 return stringRepresentation
             }
         } catch let error as SchemaConvertibleError {
+            print("Error encountered during stringRepresentation generation: \(error)")
             throw error
         }
-        
+
         return ""
     }
 }
-
