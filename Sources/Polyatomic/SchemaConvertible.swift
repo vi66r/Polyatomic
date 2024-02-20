@@ -20,7 +20,7 @@ public extension SchemaConvertible {
             _propertyDescriptor["format"] = "date-time"
         } else if valueType is UUID.Type || valueType is Optional<UUID>.Type {
             _propertyDescriptor["type"] = "string"
-            // Optional: _propertyDescriptor["format"] = "uuid"
+            _propertyDescriptor["format"] = "uuid"
         } else if valueType is String.Type || valueType is Optional<String>.Type {
             _propertyDescriptor["type"] = "string"
         } else if valueType is Int.Type || valueType is Optional<Int>.Type {
