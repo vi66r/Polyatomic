@@ -40,7 +40,7 @@ public extension SchemaConvertible {
             _propertyDescriptor = try type(of: unwrapped)._schema()
         } else {
             print("Polyatomic Schema Conversion Error: Non-conforming type encountered in propertyDescriptor for value: \(value)")
-            throw SchemaConvertibleError.nonConformingType("Could not encode this type...")
+            throw SchemaConvertibleError.nonConformingType("Polyatomic Schema Conversion Error: Non-conforming type encountered in propertyDescriptor for value: \(value)")
         }
 
         return _propertyDescriptor
