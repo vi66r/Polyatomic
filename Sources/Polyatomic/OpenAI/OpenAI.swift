@@ -64,7 +64,24 @@ extension Endpoint {
 }
 
 public struct OpenAI: LLM {
+
+    public let apiKey: String
     
+    public init(apiKey: String) {
+        self.apiKey = apiKey
+    }
+    
+    public func tokenSummarize(input: String) async throws -> String {
+        let api: API = .openAI(apiKey: apiKey)
+        let endpoint: Endpoint = .chat(api: api,
+                                       userMessage: "summarize the following such that the output uses the least possible number of tokens: \"\(input)\"",
+                                       maxTokens: 2048,
+                                       temperature: 0.0,
+                                       topP: 1.0)
+        let response: ChatCompletionResponse = try await Networker.execute(endpoint)
+        guard let text = response.choices.first?.message.content else { throw NetworkError.noDataOrBadResponse }
+        return text
+    }
     
     public func respond<T: SchemaConvertible & Decodable>(withResultContaining type: T.Type,
                                                           for prompt: String, parameters: [String : Any]?
@@ -73,13 +90,6 @@ public struct OpenAI: LLM {
         let temperature: Double = parameters?["temperature"] as? Double ?? 0.0
         let topP: Double = parameters?["top_p"] as? Double ?? 1.0
         return try await respond(withResultContaining: type, for: prompt, maxTokens: maxTokens, temperature: temperature, topP: topP)
-    }
-    
-    
-    public let apiKey: String
-    
-    public init(apiKey: String) {
-        self.apiKey = apiKey
     }
     
     public func response(for prompt: String, parameters: [String: Any]?) async throws -> PolyatomicResult<String> {

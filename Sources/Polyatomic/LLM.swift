@@ -10,4 +10,5 @@ public protocol LLM {
         parameters: [String: Any]?
     ) async throws -> PolyatomicResult<T>
     
+    func tokenSummarize(input: String) async throws -> String
 }

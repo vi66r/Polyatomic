@@ -14,8 +14,11 @@ public extension SchemaConvertible {
     private static func propertyDescriptor(for value: Any) throws -> [String: Any] {
         var _propertyDescriptor: [String: Any] = [:]
         let valueType = type(of: value)
-        
-        if valueType is String.Type || valueType is Optional<String>.Type {
+
+        if valueType is Date.Type || valueType is Optional<Date>.Type {
+            _propertyDescriptor["type"] = "string"
+            _propertyDescriptor["format"] = "date-time" // Use "date-time" for full date plus time, or "date" for just the date
+        } else if valueType is String.Type || valueType is Optional<String>.Type {
             _propertyDescriptor["type"] = "string"
         } else if valueType is Int.Type || valueType is Optional<Int>.Type {
             _propertyDescriptor["type"] = "integer"
@@ -35,7 +38,7 @@ public extension SchemaConvertible {
         } else {
             throw SchemaConvertibleError.nonConformingType("Could not encode this type...")
         }
-        
+
         return _propertyDescriptor
     }
     

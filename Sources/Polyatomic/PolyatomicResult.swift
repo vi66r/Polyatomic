@@ -3,6 +3,7 @@ import Foundation
 public struct PolyatomicResult<T: Codable & SchemaConvertible> {
     private var llm: LLM
     public var result: T
+    public var summarizations: [String] = []
     
     public init(llm: LLM, result: T) {
         self.llm = llm
